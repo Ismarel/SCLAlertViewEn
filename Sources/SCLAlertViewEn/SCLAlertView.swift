@@ -180,7 +180,7 @@ open class SCLAlertView: UIViewController {
         var hideWhenBackgroundViewIsTapped: Bool
         
         // Activity indicator
-        var activityIndicatorStyle: UIActivityIndicatorViewStyle
+        var activityIndicatorStyle: UIActivityIndicatorView.Style
         
         public init(kDefaultShadowOpacity: CGFloat = 0.7, kCircleTopPosition: CGFloat = 0.0, kCircleBackgroundTopPosition: CGFloat = 6.0, kCircleHeight: CGFloat = 56.0, kCircleIconHeight: CGFloat = 20.0, kTitleTop:CGFloat = 30.0, kTitleHeight:CGFloat = 25.0,  kWindowWidth: CGFloat = 240.0, kWindowHeight: CGFloat = 178.0, kTextHeight: CGFloat = 90.0, kTextFieldHeight: CGFloat = 45.0, kTextViewdHeight: CGFloat = 80.0, kButtonHeight: CGFloat = 45.0, kTitleFont: UIFont = UIFont.systemFont(ofSize: 20), kTitleMinimumScaleFactor: CGFloat = 1.0, kTextFont: UIFont = UIFont.systemFont(ofSize: 14), kButtonFont: UIFont = UIFont.boldSystemFont(ofSize: 14), showCloseButton: Bool = true, showCircularIcon: Bool = true, shouldAutoDismiss: Bool = true, contentViewCornerRadius: CGFloat = 5.0, fieldCornerRadius: CGFloat = 3.0, buttonCornerRadius: CGFloat = 3.0, hideWhenBackgroundViewIsTapped: Bool = false, circleBackgroundColor: UIColor = UIColor.white, contentViewColor: UIColor = UIColorFromRGB(0xFFFFFF), contentViewBorderColor: UIColor = UIColorFromRGB(0xCCCCCC), titleColor: UIColor = UIColorFromRGB(0x4D4D4D), dynamicAnimatorActive: Bool = false, disableTapGesture: Bool = false, buttonsLayout: SCLAlertButtonLayout = .vertical, activityIndicatorStyle: UIActivityIndicatorViewStyle = .white) {
             
@@ -495,14 +495,14 @@ open class SCLAlertView: UIViewController {
     
     override open func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        NotificationCenter.default.addObserver(self, selector: #selector(SCLAlertView.keyboardWillShow(_:)), name:NSNotification.Name.UIKeyboardWillShow, object: nil);
-        NotificationCenter.default.addObserver(self, selector: #selector(SCLAlertView.keyboardWillHide(_:)), name:NSNotification.Name.UIKeyboardWillHide, object: nil);
+        NotificationCenter.default.addObserver(self, selector: #selector(SCLAlertView.keyboardWillShow(_:)), name:NSNotification.Name.UIResponder.keyboardWillShowNotification, object: nil);
+        NotificationCenter.default.addObserver(self, selector: #selector(SCLAlertView.keyboardWillHide(_:)), name:NSNotification.Name.UIResponder.keyboardWillHideNotification, object: nil);
     }
     
     open override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override open func touchesEnded(_ touches:Set<UITouch>, with event:UIEvent?) {
@@ -516,10 +516,10 @@ open class SCLAlertView: UIViewController {
         appearance.setkWindowHeight(appearance.kWindowHeight + appearance.kTextFieldHeight)
         // Add text field
         let txt = UITextField()
-        txt.borderStyle = UITextBorderStyle.roundedRect
+        txt.borderStyle = UITextField.BorderStyle.roundedRect
         txt.font = appearance.kTextFont
         txt.autocapitalizationType = UITextAutocapitalizationType.words
-        txt.clearButtonMode = UITextFieldViewMode.whileEditing
+        txt.clearButtonMode = UITextField.ViewMode.whileEditing
         
         txt.layer.masksToBounds = true
         txt.layer.borderWidth = 1.0
@@ -580,7 +580,7 @@ open class SCLAlertView: UIViewController {
         // Add button
         let btn = SCLButton()
         btn.layer.masksToBounds = true
-        btn.setTitle(title, for: UIControlState())
+        btn.setTitle(title, for: UIControl.State())
         btn.titleLabel?.font = appearance.kButtonFont
         btn.customBackgroundColor = backgroundColor
         btn.customTextColor = textColor
@@ -628,7 +628,7 @@ open class SCLAlertView: UIViewController {
         keyboardHasBeenShown = true
         
         guard let userInfo = (notification as NSNotification).userInfo else {return}
-        guard let endKeyBoardFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.minY else {return}
+        guard let endKeyBoardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.minY else {return}
         
         if tmpContentViewFrameOrigin == nil {
             tmpContentViewFrameOrigin = self.contentView.frame.origin
@@ -808,7 +808,7 @@ open class SCLAlertView: UIViewController {
             self.labelTitle.frame = CGRect(x:12, y:appearance.kTitleTop, width: appearance.kWindowWidth - 24, height:actualHeight)
             
             let str = subTitle as NSString
-            let attr = [NSAttributedStringKey.font:viewText.font ?? UIFont()]
+            let attr = [NSAttributedString.Key.font:viewText.font ?? UIFont()]
             let sz = CGSize(width: appearance.kWindowWidth - 24, height:90)
             let r = str.boundingRect(with: sz, options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes:attr, context:nil)
             let ht = ceil(r.size.height)
@@ -832,7 +832,7 @@ open class SCLAlertView: UIViewController {
         
         // Spinner / icon
         if style == .wait {
-            let indicator = UIActivityIndicatorView(activityIndicatorStyle: appearance.activityIndicatorStyle)
+            let indicator = UIActivityIndicatorView(style: appearance.activityIndicatorStyle)
             indicator.startAnimating()
             circleIconView = indicator
         }
@@ -869,10 +869,10 @@ open class SCLAlertView: UIViewController {
             
             if let customTextColor = btn.customTextColor {
                 // Custom TextColor set
-                btn.setTitleColor(customTextColor, for:UIControlState())
+                btn.setTitleColor(customTextColor, for:UIControl.State())
             } else {
                 // Use default BackgroundColor derived from AlertStyle
-                btn.setTitleColor(UIColorFromRGB(colorTextButton ?? 0xFFFFFF), for:UIControlState())
+                btn.setTitleColor(UIColorFromRGB(colorTextButton ?? 0xFFFFFF), for:UIControl.State())
             }
         }
         
@@ -974,7 +974,7 @@ open class SCLAlertView: UIViewController {
             
             let timeoutStr: String = showTimeout.prefix + String(Int(timeout.value)) + showTimeout.suffix
             let txt = String(btn.initialTitle) + " " + timeoutStr
-            btn.setTitle(txt, for: UIControlState())
+            btn.setTitle(txt, for: UIControl.State())
             
         }
         
